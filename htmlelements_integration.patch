@@ -1,0 +1,70 @@
+From 85bb085fc6c17ca141cd32856e6a81f73d0da314 Mon Sep 17 00:00:00 2001
+From: Artem Eroshenko <eroshenkoam@yandex-team.ru>
+Date: Wed, 6 Mar 2013 22:53:49 +0400
+Subject: [PATCH] HtmlElements framework integration
+
+---
+ thucydides-core/pom.xml                                       | 11 +++++++++++
+ .../java/net/thucydides/core/webdriver/WebDriverFactory.java  | 10 +++-------
+ 2 files changed, 14 insertions(+), 7 deletions(-)
+
+diff --git a/thucydides-core/pom.xml b/thucydides-core/pom.xml
+index faabe98..2dd210c 100644
+--- a/thucydides-core/pom.xml
++++ b/thucydides-core/pom.xml
+@@ -50,6 +50,17 @@
+     </build>
+     <dependencies>
+         <dependency>
++            <groupId>ru.yandex.qatools.htmlelements</groupId>
++            <artifactId>htmlelements-all</artifactId>
++            <version>1.9</version>
++            <exclusions>
++                <exclusion>
++                    <groupId>org.seleniumhq.selenium</groupId>
++                    <artifactId>selenium-java</artifactId>
++                </exclusion>
++            </exclusions>
++        </dependency>
++        <dependency>
+             <groupId>cglib</groupId>
+             <artifactId>cglib</artifactId>
+             <version>2.2.2</version>
+diff --git a/thucydides-core/src/main/java/net/thucydides/core/webdriver/WebDriverFactory.java b/thucydides-core/src/main/java/net/thucydides/core/webdriver/WebDriverFactory.java
+index e907762..f6b7289 100644
+--- a/thucydides-core/src/main/java/net/thucydides/core/webdriver/WebDriverFactory.java
++++ b/thucydides-core/src/main/java/net/thucydides/core/webdriver/WebDriverFactory.java
+@@ -33,6 +33,7 @@ import org.openqa.selenium.support.PageFactory;
+ import org.openqa.selenium.support.pagefactory.ElementLocatorFactory;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
++import ru.yandex.qatools.htmlelements.loader.HtmlElementLoader;
+ 
+ import java.io.File;
+ import java.lang.reflect.Field;
+@@ -561,9 +562,7 @@ public class WebDriverFactory {
+      * Initialize a page object's fields using the specified WebDriver instance.
+      */
+     public static void initElementsWithAjaxSupport(final PageObject pageObject, final WebDriver driver) {
+-        ElementLocatorFactory finder = getElementLocatorFactorySelector().getLocatorFor(driver);
+-        PageFactory.initElements(finder, pageObject);
+-        initWebElementFacades(new WebElementFacadeFieldDecorator(finder), pageObject, driver);
++        HtmlElementLoader.populatePageObject(pageObject, driver);
+     }
+ 
+     private static ElementLocatorFactorySelector getElementLocatorFactorySelector() {
+@@ -572,10 +571,7 @@ public class WebDriverFactory {
+     }
+ 
+     public static void initElementsWithAjaxSupport(final PageObject pageObject, final WebDriver driver, int timeoutInSeconds) {
+-        ElementLocatorFactory finder = getElementLocatorFactorySelector().withTimeout(timeoutInSeconds).getLocatorFor(driver);
+-        PageFactory.initElements(finder, pageObject);
+-        initWebElementFacades(new WebElementFacadeFieldDecorator(finder), pageObject, driver);
+-
++        HtmlElementLoader.populatePageObject(pageObject, driver);
+     }
+ 
+     private static void initWebElementFacades(WebElementFacadeFieldDecorator decorator, PageObject page, final WebDriver driver) {
+-- 
+1.7.12.4 (Apple Git-37)
+
